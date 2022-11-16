@@ -84,6 +84,7 @@
             // 
             // rtbDesc
             // 
+            this.rtbDesc.BackColor = System.Drawing.SystemColors.Window;
             this.rtbDesc.Location = new System.Drawing.Point(410, 78);
             this.rtbDesc.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.rtbDesc.Name = "rtbDesc";

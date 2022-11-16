@@ -22,7 +22,8 @@ Pro práci s daty je použit `Microsoft.EntityFrameworkCore.InMemory`
 
 **Úkoly:**
 
-`MyTask
+```
+MyTask
 
     int Id (primary key)
 
@@ -32,11 +33,13 @@ Pro práci s daty je použit `Microsoft.EntityFrameworkCore.InMemory`
 
     string State (enum {New, Processed, Finished, Deleted})
 
-    string Owner`
+    string Owner
+```
 
 Api endpoints:
 
-    `Get:	"tasks/" - všechny úkoly bez úkolů ve stavu Deleted
+```
+    Get:	"tasks/" - všechny úkoly bez úkolů ve stavu Deleted
 
     Get:	"tasks/incdel" - všechny úkoly
 
@@ -46,11 +49,13 @@ Api endpoints:
 
     Put:	"tasks/{id}" - úprava úkolu
 
-    Delete:	"tasks/{id}" - smazání úkolu`
+    Delete:	"tasks/{id}" - smazání úkolu
+```
 
 **Komentáře**
 
-`sComments
+```
+Comments
 
     int Id (primary key)
 
@@ -61,11 +66,12 @@ Api endpoints:
     string Content
 
     DateTime Create
+```
 
-`
 Api endpoints:
 
-    `Get: "comments/" - všechny komentáře
+```
+    Get:    "comments/" - všechny komentáře
 
     Get:	"comments/{MyTask.Id}" - všechny komentáře k úkolu
 
@@ -74,41 +80,43 @@ Api endpoints:
     Put:	"comments/{id}" - úprava komentáře
 
     Delete:	"comments/{id}" - smazání komentáře
-
-`
+```
 
 **Uživatel**
 
-`User
+```
+User
 
     string UserName (primary key)
 
-    string Password`
+    string Password
+```
 
 Místo hesla se ukládá HASH + salt
 
 Api endpoints:
 
-`
-Get: "users/" - všichni uživatelé
+```
+    Get: "users/" - všichni uživatelé
 
     Get:	"users/{id}" - jeden uživatel
 
     Get:	"users/{username}/{password}" - ověření hesla
 
     Post:	"users/" - nový uživatel
-
-`
+```
 
 ### Testovací data
 
 Při spuštění Rest API se do databáze načtou testovací data včetně uživatelů:
 
-`admin (heslo: 54321)
+```
+admin (heslo: 54321)
 
 user1 (heslo: 12345)
 
-user2 (heslo: 12345)`
+user2 (heslo: 12345)
+```
 
 ## Klienská část
 
@@ -128,4 +136,10 @@ Pro editaci a vkládání záznamů jsou použita Dialogová okna.
 
 Uživatel `admin` může editovat všechny úkoly a může mazat úkoly a komentáře (mazat z databáze, ne jen měnit stav)
 
-Ostatní uživatelé vídí vše, ktormě úkolů ve stavu `Deleted` a mohou vkládat úkoly a komentáře a editovat úkoly, které sami vložili.
+Ostatní uživatelé vídí vše, kromě úkolů ve stavu `Deleted` a mohou vkládat úkoly a komentáře a editovat úkoly, které sami vložili.
+
+### Data
+
+Úkoly se načtou všechny při spuštění aplikace a následně se pracuje z pouze s těmito daty a provádějí se aktualizace databáze přes API.
+
+Komentáře se načítají k vybranému úkolu, vždy když se výběr úkolu změní. 

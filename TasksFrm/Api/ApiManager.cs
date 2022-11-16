@@ -22,7 +22,7 @@ namespace TasksFrm.Api
         static HttpClient client = new HttpClient { BaseAddress = new Uri(ApiManager.ApiBaseUri) };
 
         /// <summary>
-        /// General metod for call api action
+        /// General method for call api action
         /// </summary>
         /// <param name="apiAction">Action fro enum ApiAction</param>
         /// <param name="uri">URI string for API action</param>
@@ -162,7 +162,7 @@ namespace TasksFrm.Api
             return JsonSerializer.Deserialize<Comment>(responseContent);
         }
         /// <summary>
-        /// Delete selected commnet
+        /// Delete selected comment
         /// </summary>
         /// <param name="comment"></param>
         /// <returns>Response of action as JSON string</returns>

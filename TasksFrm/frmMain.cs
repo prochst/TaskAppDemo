@@ -25,8 +25,7 @@ namespace TasksFrm
 
         private void frmMain_Load(object sender, EventArgs e)
         {
-            //CheckLogin(); // jen pro vývoj, aby se nemuselo pøihlašovat 
-            logedUser.userName = "admin"; // jen pro vývoj, aby se nemuselo pøihlašovat
+            CheckLogin();  
             LoadData();
         }
 
@@ -42,7 +41,6 @@ namespace TasksFrm
             }
             dgvTasks.Refresh();
             rtbDesc.Text = selTask.description;
-            //RefreshForm(); ;
         }
 
         private void btnNewTask_Click(object sender, EventArgs e)
@@ -55,9 +53,9 @@ namespace TasksFrm
             bsMyTasks.ResetBindings(false);
             dgvTasks.Refresh();
             rtbDesc.Text = selTask.description;
-            // select created row in datagrid (last row)
+            // select created row in data grid (last row)
             dgvTasks.Rows[dgvTasks.Rows.Count - 1].Selected = true;
-            // scroll datagrid to end
+            // scroll data grid to end
             dgvTasks.FirstDisplayedScrollingRowIndex = dgvTasks.Rows.Count - 1;
         }
 
@@ -80,6 +78,7 @@ namespace TasksFrm
             {
                 logedUser.userName = "";
                 CheckLogin();
+                LoadData();
             }
         }
 
@@ -121,7 +120,7 @@ namespace TasksFrm
         /// </summary>
         private async void LoadData()
         {
-            // Disable event handler for change selected tesk in datagrid during initial loading data
+            // Disable event handler for change selected task in data grid during initial loading data
             dgvTasks.SelectionChanged -= new System.EventHandler(this.dgvTasks_SelectionChanged);
 
             if (logedUser.userName == "admin")
@@ -148,7 +147,7 @@ namespace TasksFrm
                 frmLogin login = new frmLogin();
                 login.ShowDialog();
             }
-            // if close dialog witout login, close application
+            // if close dialog without login, close application
             if (logedUser.userName == "")
                 this.Close();
 
@@ -156,7 +155,7 @@ namespace TasksFrm
         }
 
         /// <summary>
-        /// Referesh conencted controls according selected task
+        /// Refresh connected controls according selected task
         /// </summary>
         private async void RefreshForm()
         {
@@ -168,7 +167,7 @@ namespace TasksFrm
         }
         /// <summary>
         /// Set buttons for edit and delete according loged user
-        /// admin can edit everthing and can delete tasks and comments
+        /// admin can edit everything and can delete tasks and comments
         /// other user can edit only their tasks
         /// </summary>
         private void TaskButnEnable()
@@ -178,7 +177,7 @@ namespace TasksFrm
             btnEditTask.Enabled = (selTask.owner == logedUser.userName || logedUser.userName == "admin");
         }
         /// <summary>
-        /// Set columns and display properties for datadrids
+        /// Set columns and display properties for data grids
         /// </summary>
         private void setDataGrids()
         {
