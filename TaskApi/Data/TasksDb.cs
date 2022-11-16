@@ -4,6 +4,9 @@ using TasksApi.Models;
 
 namespace TasksApi.Data
 {
+    /// <summary>
+    /// Create inMemore database and tables according data entities
+    /// </summary>
     public class TasksDb : DbContext
     {
         public TasksDb(DbContextOptions<TasksDb> options)

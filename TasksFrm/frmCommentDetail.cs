@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using TasksFrm.Api;
+﻿using TasksFrm.Api;
 using TasksFrm.Models;
 
 namespace TasksFrm
@@ -35,7 +26,6 @@ namespace TasksFrm
                 await ApiManager.CreateComment(comment);
                 this.Close();
             }
-        
         }
     }
 }

@@ -87,6 +87,7 @@
             this.rtbDesc.Location = new System.Drawing.Point(410, 78);
             this.rtbDesc.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.rtbDesc.Name = "rtbDesc";
+            this.rtbDesc.ReadOnly = true;
             this.rtbDesc.Size = new System.Drawing.Size(326, 112);
             this.rtbDesc.TabIndex = 2;
             this.rtbDesc.Text = "";
@@ -179,6 +180,8 @@
             // 
             // dgvComments
             // 
+            this.dgvComments.AllowUserToAddRows = false;
+            this.dgvComments.AllowUserToDeleteRows = false;
             this.dgvComments.BackgroundColor = System.Drawing.SystemColors.Window;
             this.dgvComments.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvComments.EditMode = System.Windows.Forms.DataGridViewEditMode.EditProgrammatically;
@@ -189,6 +192,7 @@
             this.dgvComments.ReadOnly = true;
             this.dgvComments.RowHeadersWidth = 51;
             this.dgvComments.RowTemplate.Height = 25;
+            this.dgvComments.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
             this.dgvComments.Size = new System.Drawing.Size(327, 113);
             this.dgvComments.TabIndex = 4;
             // 

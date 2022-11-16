@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
+using System.Xml;
 using TasksFrm.Api;
 using TasksFrm.Models;
 
@@ -13,6 +14,8 @@ namespace TasksFrm
         public BindingSource bsMyTasks = new BindingSource();
         public string taskDesc = "";
         public static List<Comment>? taskComments = new List<Comment>();
+        public static Comment selComment = new Comment();
+
 
         public frmMain()
         {
@@ -82,17 +85,23 @@ namespace TasksFrm
 
         private async void btnDeleteComment_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Do you want to delete comment?", "Delete Comment", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            if (dgvComments.SelectedRows.Count > 0)
             {
-                // remove task from datasource
-                //frmMain.selTask = await ApiManager.DeleteTask(frmMain.selTask);
-                dgvComments.Refresh();
+                if (MessageBox.Show("Do you want to delete comment?", "Delete Comment", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+                {
+                    int id = Int32.Parse(dgvComments.SelectedRows[0].Cells["Id"].Value.ToString());
+                    selComment = taskComments.Find(t => t.id == id);
+                    await ApiManager.DeleteComment(selComment);
+                    RefreshForm();
+                }
             }
+            else
+                MessageBox.Show("You need select the comment you want delete!", "Select Comment", MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
         private void btnAddComment_Click(object sender, EventArgs e)
         {
-            frmCommentDetail commentDetail= new frmCommentDetail();
+            frmCommentDetail commentDetail = new frmCommentDetail();
             commentDetail.ShowDialog();
             RefreshForm();
         }
@@ -107,6 +116,9 @@ namespace TasksFrm
             }
         }
 
+        /// <summary>
+        /// Initial load data from server
+        /// </summary>
         private async void LoadData()
         {
             // Disable event handler for change selected tesk in datagrid during initial loading data
@@ -126,6 +138,9 @@ namespace TasksFrm
             dgvTasks.SelectionChanged += new System.EventHandler(this.dgvTasks_SelectionChanged);
 
         }
+        /// <summary>
+        /// Show dialog for login
+        /// </summary>
         private void CheckLogin()
         {
             if (logedUser.userName == "")
@@ -133,26 +148,38 @@ namespace TasksFrm
                 frmLogin login = new frmLogin();
                 login.ShowDialog();
             }
+            // if close dialog witout login, close application
             if (logedUser.userName == "")
                 this.Close();
 
             lblLogedUser.Text = logedUser.userName;
         }
 
+        /// <summary>
+        /// Referesh conencted controls according selected task
+        /// </summary>
         private async void RefreshForm()
         {
             rtbDesc.Text = selTask.description;
             taskComments = await ApiManager.GetComments4Taks(selTask.id);
             dgvComments.DataSource = taskComments;
-
+            dgvComments.ClearSelection();
             TaskButnEnable();
         }
+        /// <summary>
+        /// Set buttons for edit and delete according loged user
+        /// admin can edit everthing and can delete tasks and comments
+        /// other user can edit only their tasks
+        /// </summary>
         private void TaskButnEnable()
         {
             btnDeleteTask.Visible = (logedUser.userName == "admin");
             btnDeleteComment.Visible = (logedUser.userName == "admin");
             btnEditTask.Enabled = (selTask.owner == logedUser.userName || logedUser.userName == "admin");
         }
+        /// <summary>
+        /// Set columns and display properties for datadrids
+        /// </summary>
         private void setDataGrids()
         {
 
@@ -196,8 +223,8 @@ namespace TasksFrm
             dgvComments.ColumnHeadersDefaultCellStyle.SelectionBackColor = Color.LightGray;
             dgvComments.RowHeadersVisible = false;
             //dgvComments.RowsDefaultCellStyle.SelectionBackColor = Color.White;
-            dgvComments.DefaultCellStyle.SelectionBackColor = Color.White;
-            dgvComments.DefaultCellStyle.SelectionForeColor = Color.Black;
+            //dgvComments.DefaultCellStyle.SelectionBackColor = Color.White;
+            //dgvComments.DefaultCellStyle.SelectionForeColor = Color.Black;
 
             DataGridViewTextBoxColumn col11 = new DataGridViewTextBoxColumn();
             col11.Name = "Comment";
@@ -216,6 +243,13 @@ namespace TasksFrm
             col13.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
             col13.DataPropertyName = "create";
             dgvComments.Columns.Add(col13);
+
+            DataGridViewTextBoxColumn col14 = new DataGridViewTextBoxColumn();
+            col14.Name = "Id";
+            col14.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
+            col14.DataPropertyName = "id";
+            col14.Visible = false;
+            dgvComments.Columns.Add(col14);
 
             tableLayoutPanel1.Dock = DockStyle.Fill;
             dgvComments.Dock = DockStyle.Fill;

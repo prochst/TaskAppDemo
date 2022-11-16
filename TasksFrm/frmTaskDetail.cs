@@ -1,15 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using TasksFrm.Api;
+﻿using TasksFrm.Api;
 using TasksFrm.Models;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace TasksFrm
 {
@@ -22,6 +12,7 @@ namespace TasksFrm
 
         private void frmTaskDetail_Load(object sender, EventArgs e)
         {
+            // bind form controls to datasource - selected task in frmMain
             txbTitle.DataBindings.Add("Text", frmMain.selTask, "title", false, DataSourceUpdateMode.OnPropertyChanged);
             txbDescription.DataBindings.Add("Text", frmMain.selTask, "description", false, DataSourceUpdateMode.OnPropertyChanged);
             cmbState.DataBindings.Add(new Binding("SelectedItem", frmMain.selTask, "state"));
@@ -37,13 +28,10 @@ namespace TasksFrm
         private async void btnSave_Click(object sender, EventArgs e)
         {
             if (frmMain.selTask.id == 0)
-            {
                 frmMain.selTask = await ApiManager.CreateTask(frmMain.selTask);
-            }
             else
-            {
                 frmMain.selTask = await ApiManager.UpdateTask(frmMain.selTask);
-            }
+
             this.Close();
         }
     }
