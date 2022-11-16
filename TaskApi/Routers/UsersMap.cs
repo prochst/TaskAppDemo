@@ -50,15 +50,13 @@ namespace TasksApi.Routers
         {
             try 
             {
-                await db.Users.Where(u => u.UserName == user.UserName).FirstAsync();
-                //UserName exist, not possible to add record, unique Index for UserName don't works with InMemory database
-                return TypedResults.NotFound();
-            }
-            catch 
-            { 
                 db.Users.Add(user);
                 await db.SaveChangesAsync();
-                return TypedResults.Created($"/todoitems/{user.Id}", user);
+                return TypedResults.Ok(user);
+            }
+            catch 
+            {
+                return TypedResults.Problem("User not created");
             }
         }
 

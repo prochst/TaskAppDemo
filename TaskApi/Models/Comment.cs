@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+
 
 namespace TasksApi.Models
 {
@@ -11,9 +8,12 @@ namespace TasksApi.Models
     /// </summary>
     public class Comment
     {
+        [Key]
         public int Id { get; set; }
+        [Required]
         public int MyTaskId { get; set; }
-        public string UserName { get; set; }
+        [Required]
+        public string UserName { get; set; } = string.Empty;
         public string Content { get; set; } = string.Empty;
         public DateTime Create { get; set; } = DateTime.Now;
     }

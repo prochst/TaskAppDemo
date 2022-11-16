@@ -24,7 +24,6 @@ namespace TasksFrm
         {
             txbTitle.DataBindings.Add("Text", frmMain.selTask, "title", false, DataSourceUpdateMode.OnPropertyChanged);
             txbDescription.DataBindings.Add("Text", frmMain.selTask, "description", false, DataSourceUpdateMode.OnPropertyChanged);
-            //cmbState.DataBindings.Add("Text", frmMain.selTask, "state", false, DataSourceUpdateMode.OnPropertyChanged);
             cmbState.DataBindings.Add(new Binding("SelectedItem", frmMain.selTask, "state"));
             cmbState.DataSource = Enum.GetValues(typeof(MyTask.MyTaskState));
             cmbState.SelectedItem = frmMain.selTask.state;
@@ -37,13 +36,15 @@ namespace TasksFrm
 
         private async void btnSave_Click(object sender, EventArgs e)
         {
-            var response = await ApiManager.UpdateTask(frmMain.selTask);
+            if (frmMain.selTask.id == 0)
+            {
+                frmMain.selTask = await ApiManager.CreateTask(frmMain.selTask);
+            }
+            else
+            {
+                frmMain.selTask = await ApiManager.UpdateTask(frmMain.selTask);
+            }
             this.Close();
-        }
-
-        private void rtbDescription_TextChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }

@@ -62,7 +62,10 @@ namespace TaskApi.Routers
 
             if (comment is null) return TypedResults.NotFound();
 
+            
             comment.Content = inputComment.Content;
+            // Only the user who created the comment can change it, so property UserName isn't changed
+            //comment.UserName = inputComment.UserName;
 
             await db.SaveChangesAsync();
             return TypedResults.Ok(comment);

@@ -22,7 +22,6 @@ namespace TasksFrm.Models
         public string title { get; set; } = string.Empty;
         public string description { get; set; } = string.Empty;
         public MyTaskState state { get; set; } = MyTaskState.New;
-        public User? owner { get; set; }
-        public string ownerName => owner?.userName;
+        public string owner { get; set; } = string.Empty;
     }
 }

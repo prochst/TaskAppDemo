@@ -11,9 +11,8 @@ namespace TasksApi.Models
         /// Representation of user data
         /// </summary>
         private string _password = string.Empty;
-        [Required]
-        public int Id { get; set; }
-        [Required]
+
+        [Key]
         public string UserName { get; set; } = string.Empty;
         [Required]
         public string Password

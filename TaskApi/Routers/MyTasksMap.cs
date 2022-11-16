@@ -26,7 +26,7 @@ namespace TaskApi.Routers
         /// <returns>MyTasks[] array in JSON format</returns>
         static async Task<IResult> GetAll(TasksDb db)
         {
-            return TypedResults.Ok(await db.MyTasks.Include(u => u.Owner).Where(t => t.State != MyTask.MyTaskState.Deleted).ToArrayAsync());
+            return TypedResults.Ok(await db.MyTasks.Where(t => t.State != MyTask.MyTaskState.Deleted).ToArrayAsync());
         }
 
         /// <summary>
@@ -36,7 +36,7 @@ namespace TaskApi.Routers
         /// <returns>MyTasks[] array in JSON format</returns>
         static async Task<IResult> GetAllIncludeDeleted(TasksDb db)
         {
-            return TypedResults.Ok(await db.MyTasks.Include(u => u.Owner).ToListAsync());
+            return TypedResults.Ok(await db.MyTasks.ToListAsync());
         }
 
         /// <summary>
@@ -63,8 +63,7 @@ namespace TaskApi.Routers
         {
             db.MyTasks.Add(myTask);
             await db.SaveChangesAsync();
-
-            return TypedResults.Created($"/tasks/{myTask.Id}", myTask);
+            return TypedResults.Ok(myTask);
         }
 
         /// <summary>
@@ -83,6 +82,8 @@ namespace TaskApi.Routers
             myTask.Title = inputMyTask.Title;
             myTask.Description = inputMyTask.Description;
             myTask.State = inputMyTask.State;
+            // Only the user who owned the task can change it, so property Owner isn't changed
+            //myTask.Owner = inputMyTask.Owner;
 
             await db.SaveChangesAsync();
             return TypedResults.Ok(myTask);

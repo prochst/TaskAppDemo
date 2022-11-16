@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Windows.Forms;
 using TasksFrm.Api;
 using TasksFrm.Models;
@@ -6,9 +7,10 @@ namespace TasksFrm
 {
     public partial class frmMain : Form
     {
-        public static User logedUser = new User ();
-        public static MyTask selTask= new MyTask();
+        public static User logedUser = new User();
+        public static MyTask selTask = new MyTask();
         public List<MyTask>? myTasks = new List<MyTask>();
+        public BindingSource bsMyTasks = new BindingSource();
         public string taskDesc = "";
         public static List<Comment>? taskComments = new List<Comment>();
 
@@ -21,33 +23,51 @@ namespace TasksFrm
         private void frmMain_Load(object sender, EventArgs e)
         {
             //CheckLogin(); // jen pro vývoj, aby se nemuselo pøihlašovat 
-            LoadData(); 
-            logedUser.id = 2; // jen pro vývoj, aby se nemuselo pøihlašovat
-        }
-
-        private async void LoadData()
-        {
-            // Disable event handler for change selected tesk in datagrid during initial loading data
-            dgvTasks.SelectionChanged -= new System.EventHandler(this.dgvTasks_SelectionChanged);
-
-            myTasks = await ApiManager.GetTasks();
-            dgvTasks.DataSource = myTasks;
-            selTask = myTasks.First();
-
-            RefreshForm();
-
-            // Enabled handler again
-            dgvTasks.SelectionChanged += new System.EventHandler(this.dgvTasks_SelectionChanged);
-
+            logedUser.userName = "admin"; // jen pro vývoj, aby se nemuselo pøihlašovat
+            LoadData();
         }
 
         private void btnEditTask_Click(object sender, EventArgs e)
         {
             frmTaskDetail taskDetail = new frmTaskDetail();
             taskDetail.ShowDialog();
+            // remove task from datasource if state is changed to "deleted"
+            if (selTask.state == MyTask.MyTaskState.Deleted)
+            {
+                myTasks.RemoveAll(t => t.id == selTask.id);
+                bsMyTasks.ResetBindings(false);
+            }
             dgvTasks.Refresh();
             rtbDesc.Text = selTask.description;
             //RefreshForm(); ;
+        }
+
+        private void btnNewTask_Click(object sender, EventArgs e)
+        {
+            selTask = new MyTask { title = "", description = "", owner = logedUser.userName, state = MyTask.MyTaskState.New };
+            frmTaskDetail taskDetail = new frmTaskDetail();
+            taskDetail.ShowDialog();
+            // add new task to datasource
+            myTasks.Add(selTask);
+            bsMyTasks.ResetBindings(false);
+            dgvTasks.Refresh();
+            rtbDesc.Text = selTask.description;
+            // select created row in datagrid (last row)
+            dgvTasks.Rows[dgvTasks.Rows.Count - 1].Selected = true;
+            // scroll datagrid to end
+            dgvTasks.FirstDisplayedScrollingRowIndex = dgvTasks.Rows.Count - 1;
+        }
+
+        private async void btnDeleteTask_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Do you want to delete task?", "Delete Task", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                // remove task from datasource
+                myTasks.Remove(selTask);
+                frmMain.selTask = await ApiManager.DeleteTask(frmMain.selTask);
+                bsMyTasks.ResetBindings(false);
+                dgvTasks.Refresh();
+            }
         }
 
         private void lblLogedUser_Click(object sender, EventArgs e)
@@ -60,11 +80,51 @@ namespace TasksFrm
             }
         }
 
+        private async void btnDeleteComment_Click(object sender, EventArgs e)
+        {
+            if (MessageBox.Show("Do you want to delete comment?", "Delete Comment", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                // remove task from datasource
+                //frmMain.selTask = await ApiManager.DeleteTask(frmMain.selTask);
+                dgvComments.Refresh();
+            }
+        }
+
+        private void btnAddComment_Click(object sender, EventArgs e)
+        {
+            frmCommentDetail commentDetail= new frmCommentDetail();
+            commentDetail.ShowDialog();
+            RefreshForm();
+        }
+
         private void dgvTasks_SelectionChanged(object sender, EventArgs e)
         {
-            int id = Int32.Parse(dgvTasks.SelectedRows[0].Cells["Id"].Value.ToString());
-            selTask = myTasks.Find(t => t.id == id);
+            if (dgvTasks.SelectedRows.Count > 0)
+            {
+                int id = Int32.Parse(dgvTasks.SelectedRows[0].Cells["Id"].Value.ToString());
+                selTask = myTasks.Find(t => t.id == id);
+                RefreshForm();
+            }
+        }
+
+        private async void LoadData()
+        {
+            // Disable event handler for change selected tesk in datagrid during initial loading data
+            dgvTasks.SelectionChanged -= new System.EventHandler(this.dgvTasks_SelectionChanged);
+
+            if (logedUser.userName == "admin")
+                myTasks = await ApiManager.GetTasks(true);
+            else
+                myTasks = await ApiManager.GetTasks();
+            bsMyTasks.DataSource = myTasks;
+            dgvTasks.DataSource = bsMyTasks;
+            selTask = myTasks.First();
+
             RefreshForm();
+
+            // Enabled handler again
+            dgvTasks.SelectionChanged += new System.EventHandler(this.dgvTasks_SelectionChanged);
+
         }
         private void CheckLogin()
         {
@@ -85,16 +145,17 @@ namespace TasksFrm
             taskComments = await ApiManager.GetComments4Taks(selTask.id);
             dgvComments.DataSource = taskComments;
 
-            TaskButnEnable(selTask.owner.id == logedUser.id || logedUser.id == 1);
+            TaskButnEnable();
         }
-        private void TaskButnEnable(Boolean enable)
+        private void TaskButnEnable()
         {
-            btnDeleteTask.Enabled = enable;
-            btnEditTask.Enabled = enable;
+            btnDeleteTask.Visible = (logedUser.userName == "admin");
+            btnDeleteComment.Visible = (logedUser.userName == "admin");
+            btnEditTask.Enabled = (selTask.owner == logedUser.userName || logedUser.userName == "admin");
         }
         private void setDataGrids()
-        {   
-            
+        {
+
             dgvTasks.AutoGenerateColumns = false;
             dgvTasks.ColumnHeadersVisible = true;
             dgvTasks.EnableHeadersVisualStyles = false;
@@ -118,7 +179,7 @@ namespace TasksFrm
             DataGridViewTextBoxColumn col3 = new DataGridViewTextBoxColumn();
             col3.Name = "Owner";
             col3.AutoSizeMode = DataGridViewAutoSizeColumnMode.DisplayedCells;
-            col3.DataPropertyName = "ownerName";
+            col3.DataPropertyName = "owner";
             dgvTasks.Columns.Add(col3);
 
             DataGridViewTextBoxColumn col4 = new DataGridViewTextBoxColumn();
@@ -161,6 +222,5 @@ namespace TasksFrm
             dgvTasks.Dock = DockStyle.Fill;
             rtbDesc.Dock = DockStyle.Fill;
         }
-
     }
 }
