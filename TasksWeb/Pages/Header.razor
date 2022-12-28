@@ -1,0 +1,35 @@
+﻿@using TasksWeb.Models
+@implements IDisposable
+
+@inject LoginState loginState;
+
+<div class="header">
+    <div class="header-row">
+        <div class="brand">
+            <i class="ri-todo-line ri-2x"></i>
+            <h1>Úkoly</h1>
+        </div>
+
+        @if (loginState.isLogged)
+        {
+            <div class="logged-user">
+                <i class="ri-user-line"></i>
+                @loginState.loggedUser
+                <i class="ri-logout-box-r-line logout-btn" @onclick="loginState.Logout" title="Logout"></i>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        loginState.OnLoginChange += StateHasChanged;
+    }
+    public void Dispose()
+    {
+        loginState.OnLoginChange -= StateHasChanged;
+    }
+}

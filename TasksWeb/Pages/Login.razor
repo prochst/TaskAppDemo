@@ -1,0 +1,99 @@
+﻿@using TasksWeb.Api
+@using TasksWeb.Models
+
+@inject LoginState loginState;
+
+
+<div class="login-frm">
+    <div class="frm-row">
+        <label>Username </label>
+        <input id="UserName: " name="UserName" type="text" @bind-value="userName" />
+    </div>
+    <div class="frm-row">
+        <label>Password </label>
+        <input id="Password" name="Password" type="password" @bind-value="password" />
+    </div>
+    <div class="frm-buttons">
+        <button class="frm-button" type="submit" @onclick=@CheckLogin>
+            Login
+        </button>
+        <button class="frm-button" type="submit" @onclick=@AddUser>
+            SignUp
+        </button>
+    </div>
+</div>
+@if (errorMsg != "")
+{
+<div class="errors">
+        <p class="error-title">@errorMsg</p>
+</div>
+}
+
+@code {
+    private string userName = "";
+    private string password = "";
+    private string errorMsg = "";
+
+    /// <summary>
+    /// Validate User credentials, when match change loginState service
+    /// </summary>
+    private async void CheckLogin()
+    {
+        if (ValidateForm())
+        {
+            try {
+                User user = await ApiManager.VerifyUser(userName, password);
+
+                if (user.userName == "admin")
+                    loginState.Login(user.userName, true);
+                else
+                    loginState.Login(user.userName, false);
+            }
+            catch (Exception ex)
+            {
+                errorMsg = "Wrong user name or password!";
+                StateHasChanged();
+                Console.WriteLine("Wrong user name or password! " + ex.Message);
+            }
+        }
+    }
+    /// <summary>
+    /// Create new user
+    /// </summary>
+    private async void AddUser()
+    {
+        if (ValidateForm())
+        {
+            try
+            {
+                User user = await ApiManager.RegisterUser(userName, password);
+                loginState.Login(user.userName, false);
+            }
+            catch (Exception ex)
+            {
+                // show error
+                errorMsg = "User cannot be registered!!";
+                StateHasChanged();
+                Console.WriteLine("User cannot be registered! " + ex.Message);
+            }
+        }
+    }
+    /// <summary>
+    /// Validate User Name and Password from form field
+    /// </summary>
+    /// <returns>bool</returns>
+    private bool ValidateForm()
+    {
+        errorMsg = "";
+        if (userName.Length < 3 || userName.Length > 13)
+            errorMsg = "Name should be between 4 and 13 characters.! ";
+
+        if (password.Length < 5 || password.Length > 16)
+            errorMsg += "Password should be between 4 and 13 characters.! ";
+
+        if (errorMsg.Length > 0)
+            return false;
+        else
+            return true;
+    }
+}

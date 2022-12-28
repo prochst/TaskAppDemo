@@ -1,0 +1,38 @@
+﻿.header {
+    position: fixed;
+    height: 60px;
+    width: 100%;
+}
+    .header * {
+        color: var(--bg-edit);
+    }
+.header-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    padding: 0 1.5rem;
+}
+.brand {
+    display: flex;
+    flex-direction: row;
+}
+
+    .brand h1 {
+        padding-left: 1.2rem;
+        margin: 0;
+        font-size: calc(var(--font-size) * 1.5);
+        font-weight: 500;
+        letter-spacing: 0.3em;
+    }
+
+.logged-user {
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+.logout-btn {
+    cursor: pointer;
+}
+

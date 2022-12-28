@@ -1,0 +1,27 @@
+﻿@page "/"
+@using TasksWeb.Models
+@implements IDisposable
+
+@inject LoginState loginState;
+
+<Header></Header>
+
+@if(loginState.isLogged)
+{
+    <TasksList></TasksList>
+}
+else
+{
+    <Login></Login>
+}
+@code {
+
+    protected override void OnInitialized()
+    {
+        loginState.OnLoginChange += StateHasChanged;
+    }
+    public void Dispose()
+    {
+        loginState.OnLoginChange -= StateHasChanged;
+    }
+}

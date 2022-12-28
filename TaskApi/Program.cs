@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using TasksApi.Routers;
 using TasksApi.Data;
-using TasksApi.Models;
 using TaskApi.Routers;
 using TaskApi.Data;
 

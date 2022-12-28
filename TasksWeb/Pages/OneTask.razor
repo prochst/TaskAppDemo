@@ -1,0 +1,114 @@
+﻿@using TasksWeb.Models
+@inject LoginState loginState;
+
+<div class="content">
+    <div class="title">
+        <div class="task-state" @onclick="() => ChangeState()">
+            @if (@myTask.state == MyTask.MyTaskState.New)
+            {
+                <i class="ri-checkbox-blank-line" title="new task"></i>
+            }
+            @if (@myTask.state == MyTask.MyTaskState.Processed)
+            {
+                <i class="ri-checkbox-indeterminate-line" title="processed task"></i>
+            }
+            @if (@myTask.state == MyTask.MyTaskState.Finished)
+            {
+                <i class="ri-checkbox-line" title="finished task"></i>
+            }
+            @if (@myTask.state == MyTask.MyTaskState.Deleted)
+            {
+                <i class="ri-close-circle-fill deleted-check" title="deleted task"></i>
+            }
+        </div>
+
+        <input @bind="myTask.title" @onfocusout="() => SaveTask()" class="@myTask.state" type="text" placeholder="new task"
+               disabled="@(myTask.owner != loginState.loggedUser && !loginState.isAdmin)" />
+    </div>
+</div>
+<div class="properties">
+    <div class="owner" title="user name"><i class="ri-user-line ri-sm"></i>@myTask.owner</div>
+    <span class="desc-icon" @onclick="() => ShowDesc()">
+        @if ((@myTask.description != null) && (myTask.description != ""))
+        {
+            <i class="ri-sticky-note-fill"></i>
+        }
+        else
+        {
+            <i class="ri-sticky-note-line"></i>
+        }
+    </span>
+    @if (loginState.isAdmin)
+    {
+        <span class="delete-icon" @onclick="() => deleteTask()"><i class="ri-delete-bin-6-line"></i></span>
+    }
+</div>
+<div class="desc" style="@displayStyle">
+    <textarea ref="taDesc" @bind="myTask.description" @onfocusout="() => SaveTask()" class="@(myTask.state == MyTask.MyTaskState.Finished ? "jeSplneno" : "")"
+              placeholder="Write description" disabled="@(myTask.owner != loginState.loggedUser && !loginState.isAdmin)"></textarea>
+</div>
+
+
+
+@code {
+    [Parameter]
+    public MyTask myTask { get; set; } = new MyTask();
+
+    [Parameter]
+    public EventCallback<MyTask> myTaskChanged { get; set; }
+
+    [Parameter]
+    public EventCallback<MyTask> OnUpdateTaskCallback { get; set; }
+
+    [Parameter]
+    public EventCallback<MyTask> OnDeleteTaskCallback { get; set; }
+
+    public string displayStyle = "display: none";
+
+    /// <summary>
+    /// Show / Hide textarea element with task description
+    /// </summary>
+    private void ShowDesc()
+    {
+        if (displayStyle == "display: none")
+            displayStyle = "display: block";
+        else
+            displayStyle = "display: none";
+    }
+
+    /// <summary>
+    /// Emit event for update task to parent component
+    /// </summary>
+    private async void SaveTask()
+    {
+        await OnUpdateTaskCallback.InvokeAsync(myTask);
+    }
+
+    /// <summary>
+    /// Change taks state and save task
+    /// </summary>
+    private void ChangeState()
+    {
+        if (myTask.owner == loginState.loggedUser || loginState.isAdmin)
+        {
+            if (myTask.state == MyTask.MyTaskState.New)
+                myTask.state = MyTask.MyTaskState.Processed;
+            else if (myTask.state == MyTask.MyTaskState.Processed)
+                myTask.state = MyTask.MyTaskState.Finished;
+            else if (myTask.state == MyTask.MyTaskState.Finished)
+                myTask.state = MyTask.MyTaskState.Deleted;
+            else if (myTask.state == MyTask.MyTaskState.Deleted)
+                myTask.state = MyTask.MyTaskState.New;
+
+            SaveTask();
+        }
+    }
+
+    /// <summary>
+    /// Emit event for delete task to parent component
+    /// </summary>
+    private async void deleteTask()
+    {
+        await OnDeleteTaskCallback.InvokeAsync(myTask);
+    }
+}

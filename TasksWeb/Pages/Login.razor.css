@@ -1,0 +1,32 @@
+﻿.login-frm {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 40vh;
+    padding-top: 120px;
+}
+.frm-row{
+    display:flex;
+    flex-direction:row;
+    padding-bottom: 2rem;
+}
+.frm-row label {
+    padding-right: 1.5rem;
+}    
+.frm-row input {
+        background: var(--bg-edit);
+        color: var(--font-edit);
+        padding: 0.2rem 0.5rem;
+}
+
+.frm-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content:space-evenly;
+    width: 60vh;
+}
+.frm-button {
+    width: 5rem;
+}
+

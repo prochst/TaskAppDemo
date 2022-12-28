@@ -1,0 +1,257 @@
+﻿@using System.Text.Json
+@using System.Text.Json.Serialization
+@using TasksWeb.Api
+@using TasksWeb.Models
+@using TasksWeb.Pages
+
+@inject IHttpClientFactory ClientFactory
+@inject LoginState loginState;
+
+
+<div class="list-menu">
+    <div class="menu-row">
+        <div class="filter-task">
+            <input class="switch" type="checkbox" checked @onclick="@ShowFinished" /><span class="menu-title">
+                Show finished
+            </span>
+        </div>
+        <div class="addTask" @onclick="CreateTask">
+            <i class="ri-play-list-add-line ri-lg text-white"></i><span class="menu-title">New task</span>
+        </div>
+    </div>
+</div>
+<div class="tasks-list">
+    @foreach (var item in showTasks)
+    {
+        MyTask task = item;
+        <div class="task" @onclick="() => SelectTask(item)">
+            <OneTask @bind-myTask="task" OnUpdateTaskCallback="@SaveTask" OnDeleteTaskCallback="DeleteTask"></OneTask>
+        </div>
+    }
+</div>
+
+<div class="comments-menu">
+    <h3>Comments on the selected task</h3>
+    <div class="addComment" @onclick="CreateComment">
+        <i class="ri-play-list-add-line ri-lg text-white"></i><span class="menu-title">New comment</span>
+    </div>
+</div>
+<div class="comments">
+    @foreach (var comment in comments)
+    {
+        <div class="task">
+            <div class="content">
+                    <textarea class="taComment" @bind="comment.content" @onfocusout="() => SaveComment(comment)" disabled="@(comment.userName != loginState.loggedUser)" placeholder="Write comment"></textarea>
+            </div>
+            <div class="properties">
+                <div class="owner" title="created">@comment.create.ToShortDateString()</div>
+                <div class="owner" title="task owner"><i class="ri-user-line ri-sm owner-icon"></i>@comment.userName</div>
+                @if (loginState.isAdmin)
+                {
+                    <span class="delete-icon" @onclick="() => DeleteComment(comment)"><i class="ri-delete-bin-6-line"></i></span>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+
+@code {
+    [Parameter]
+    public MyTask oneTask { get; set; } = new MyTask();
+
+    private List<MyTask> myTasks = new List<MyTask>();
+    private List<MyTask> showTasks = new List<MyTask>();
+    private List<Comment> comments = new List<Comment>();
+    private MyTask selectedTask = new MyTask();
+    private bool showFinished = true;
+    private bool shouldRender;
+
+    protected override bool ShouldRender() => shouldRender;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            myTasks = await ApiManager.GetTasks(loginState.isAdmin);
+            FilterFinished();
+            await SelectTask(showTasks[0]);
+        }
+        catch (Exception ex)
+        {
+            // show error
+            Console.WriteLine(ex.Message);
+        }
+        shouldRender = true;
+    }
+
+    /// <summary>
+    /// Read comments for selected taks from API
+    /// </summary>
+    /// <param name="taskId"></param>
+    /// <returns></returns>
+    private async Task Comments4Task(int taskId)
+    {
+        comments = await ApiManager.GetComments4Taks(taskId);
+        comments = comments.OrderByDescending(t => t.id).ToList();
+    }
+
+    /// <summary>
+    /// Set actual selected task in list and read comments for this task
+    /// </summary>
+    /// <param name="myTask"></param>
+    /// <returns></returns>
+    private async Task SelectTask(MyTask myTask)
+    {
+        selectedTask = myTask;
+        await Comments4Task(myTask.id);
+
+    }
+
+    /// <summary>
+    /// Update task
+    /// </summary>
+    /// <param name="myTask"></param>
+    /// <returns></returns>
+    private async Task SaveTask(MyTask myTask)
+    {
+        try
+        {
+            await ApiManager.UpdateTask(myTask);
+            FilterFinished();
+        }
+        catch (Exception ex)
+        {
+            // show error
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Create new taks
+    /// </summary>
+    /// <returns></returns>
+    private async Task CreateTask()
+    {
+        MyTask newTask = new MyTask();
+        newTask.owner = loginState.loggedUser;
+
+        try
+        {
+            newTask = await ApiManager.CreateTask(newTask);
+            myTasks.Add(newTask);
+            FilterFinished();
+        }
+        catch (Exception ex)
+        {
+            // show error
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Delete task on API
+    /// delete also all comments belongs to task
+    /// </summary>
+    /// <param name="myTask"></param>
+    /// <returns></returns>
+    private async Task DeleteTask(MyTask myTask)
+    {
+        try
+        {
+            await ApiManager.DeleteTask(myTask, comments);
+            myTasks.Remove(myTask);
+            FilterFinished();
+        }
+        catch (Exception ex)
+        {
+            // show error
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Filter tasks according to switch showFinished
+    /// </summary>
+    private void FilterFinished()
+    {
+        if (showFinished)
+            showTasks = myTasks;
+        else
+            showTasks = myTasks.Where(t => t.state != MyTask.MyTaskState.Finished && t.state != MyTask.MyTaskState.Deleted).ToList();
+
+        showTasks = showTasks.OrderByDescending(t => t.id).ToList();
+    }
+
+    /// <summary>
+    /// Sets value for switch showFinished
+    /// </summary>
+    private void ShowFinished()
+    {
+        showFinished = !showFinished;
+        FilterFinished();
+    }
+
+    /// <summary>
+    /// Create new comment for selected taks 
+    /// </summary>
+    /// <returns></returns>
+    private async Task CreateComment()
+    {
+        Comment newComment = new Comment();
+        newComment.myTaskId = selectedTask.id;
+        newComment.userName = loginState.loggedUser;
+        //newComment.create = DateTime.Now;
+        Console.WriteLine("Create new comment: " + newComment);
+        try
+        {
+            newComment = await ApiManager.CreateComment(newComment);
+            comments.Add(newComment);
+            comments = comments.OrderByDescending(t => t.id).ToList();
+        }
+        catch (Exception ex)
+        {
+            // show error
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Update comment
+    /// </summary>
+    /// <param name="comment"></param>
+    /// <returns></returns>
+    private async Task SaveComment(Comment comment)
+    {
+        Console.WriteLine("Update comment: " + comment.content);
+        try
+        {
+            await ApiManager.UpdateComment(comment);
+        }
+        catch (Exception ex)
+        {
+            // show error
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    /// <summary>
+    /// Delete comment
+    /// </summary>
+    /// <param name="comment"></param>
+    /// <returns></returns>
+    private async Task DeleteComment(Comment comment)
+    {
+        Console.WriteLine("Delete comment: " + comment.content);
+        try
+        {
+            await ApiManager.DeleteComment(comment);
+            comments.Remove(comment);
+        }
+        catch (Exception ex)
+        {
+            // show error
+            Console.WriteLine(ex.Message);
+        }
+    }
+}
