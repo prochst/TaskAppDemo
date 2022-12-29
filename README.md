@@ -120,17 +120,23 @@ user2 (heslo: 12345)
 
 ## Klienská část
 
-Projekt TaskFrm je Windows Form aplikace s frameworkem .NET 7.0
+Klientskou část tvoří dva projekty:
+- TaskFrm je Windows Form aplikace s frameworkem .NET 7.0
+    ![TaskFrm](./FormClient.png)
+- TaskWeb je webová SPA aplikace napsaná pomocí frameworku Blazor Server App
+    ![TaskWeb](./WebClient.png)
 
 ### Uživatelské rozhraní
 
-APlikace používá výchozí nastavení stylů ovládacích prvků, nebylo cílem ji nějak graficky vylepšovat.
+**Windows Form** aplikace používá výchozí nastavení stylů ovládacích prvků, nebylo cílem ji nějak graficky vylepšovat.
 
 Pracuje s jedním hlavním oknem, kde se v levé části zobrazuje seznam úkolů a v právé pak popis a komentáře k vybranému úkolu.
+V pravém horním rohu je zobrazen přihlášený uživatel. Pro editaci a vkládání záznamů jsou použita Dialogová okna.
 
-V pravém horním rohu je zobrazen přihlášený uživatel.
+**Webová SPA** aplikace zobrazuje seznam úkolů a k vybranému úkolu seznam komentářů. 
 
-Pro editaci a vkládání záznamů jsou použita Dialogová okna.
+V záhlaví seznamu úkolů je přpínač pro zobrazení i splněných a smazaných úkolů.
+Texty se upravují přímo v input polích, pokud na to má uživatel oprávnění. Popis úkolu se zobrazí po kliknutí na ovládací ikonu v řádku úkolu. V pravém horním rohu je zobrazen přihlášený uživatel  atlačítko pro odhlášení.
 
 ### Aplikační logika
 

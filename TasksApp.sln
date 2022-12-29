@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TaskApi", "TaskApi\TaskApi.
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8AB3F9E9-F52D-412D-B7B1-D374B8836E4E}"
 	ProjectSection(SolutionItems) = preProject
+		FormClient.png = FormClient.png
 		README.md = README.md
+		WebClient.png = WebClient.png
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TasksWeb", "TasksWeb\TasksWeb.csproj", "{185DC263-20D9-4BFF-B630-27B6E4907333}"
