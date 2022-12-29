@@ -17,7 +17,7 @@ namespace TasksWeb.Api
             Put,
             Delete
         }
-         
+
         static string ApiBaseUri = "http://localhost:5050/";
         static HttpClient client = new HttpClient { BaseAddress = new Uri(ApiManager.ApiBaseUri) };
 
@@ -53,13 +53,13 @@ namespace TasksWeb.Api
                         break;
                 }
                 responseMessage.EnsureSuccessStatusCode();
-                var responseContent =  await responseMessage.Content.ReadAsStringAsync();
+                var responseContent = await responseMessage.Content.ReadAsStringAsync();
                 return responseContent;
             }
             catch (Exception ex)
             {
-                //MessageBox.Show(ex.Message); //pro provozní prostředí udělat logování chyb do souboru
-                return null;
+                Console.WriteLine("Error access data from API: " + apiAction + " - " + uri + "Exception: " + ex.Message);
+                return null!;
             }
         }
 
@@ -70,17 +70,10 @@ namespace TasksWeb.Api
         /// <returns>Response of action as JSON string</returns>
         public static async Task<List<MyTask>?> GetTasks(Boolean icludedDeleted = false)
         {
-            try
-            {
-                string uri = "tasks";
-                if (icludedDeleted) uri = "tasks/incdel";
-                var responseContent = await SendApiRequest(ApiAction.Get, uri);
-                return JsonSerializer.Deserialize<List<MyTask>>(responseContent);
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Cannot access tasks from API");
-            }
+            string uri = "tasks";
+            if (icludedDeleted) uri = "tasks/incdel";
+            var responseContent = await SendApiRequest(ApiAction.Get, uri);
+            return JsonSerializer.Deserialize<List<MyTask>>(responseContent);
         }
 
         /// <summary>
@@ -117,7 +110,7 @@ namespace TasksWeb.Api
         {
             string uri = "tasks/" + myTask.id;
             var responseContent = await SendApiRequest(ApiAction.Put, uri, myTask);
-            return JsonSerializer.Deserialize<MyTask>(responseContent);
+            return JsonSerializer.Deserialize<MyTask>(responseContent)!;
         }
         /// <summary>
         /// Create new task
@@ -128,7 +121,7 @@ namespace TasksWeb.Api
         {
             string uri = "tasks";
             var responseContent = await SendApiRequest(ApiAction.Post, uri, myTask);
-            return JsonSerializer.Deserialize<MyTask>(responseContent);
+            return JsonSerializer.Deserialize<MyTask>(responseContent)!;
         }
         /// <summary>
         /// Delete selected task and associated comments
@@ -142,9 +135,9 @@ namespace TasksWeb.Api
             // delete all associated comments
             foreach (Comment comment in comments)
             {
-                DeleteComment(comment);
+                await DeleteComment(comment)!;
             }
-            return JsonSerializer.Deserialize<MyTask>(responseContent);
+            return JsonSerializer.Deserialize<MyTask>(responseContent)!;
         }
         /// <summary>
         /// Gets all comments joined with selected task
@@ -166,7 +159,7 @@ namespace TasksWeb.Api
         {
             string uri = "comments";
             var responseContent = await SendApiRequest(ApiAction.Post, uri, comment);
-            return JsonSerializer.Deserialize<Comment>(responseContent);
+            return JsonSerializer.Deserialize<Comment>(responseContent)!;
         }
         /// <summary>
         /// Update comment

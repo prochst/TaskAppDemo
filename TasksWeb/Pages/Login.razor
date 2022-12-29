@@ -42,9 +42,9 @@
         if (ValidateForm())
         {
             try {
-                User user = await ApiManager.VerifyUser(userName, password);
+                User? user = await ApiManager.VerifyUser(userName, password);
 
-                if (user.userName == "admin")
+                if (user!.userName == "admin")
                     loginState.Login(user.userName, true);
                 else
                     loginState.Login(user.userName, false);
@@ -66,8 +66,8 @@
         {
             try
             {
-                User user = await ApiManager.RegisterUser(userName, password);
-                loginState.Login(user.userName, false);
+                User? user = await ApiManager.RegisterUser(userName, password);
+                loginState.Login(user!.userName, false);
             }
             catch (Exception ex)
             {

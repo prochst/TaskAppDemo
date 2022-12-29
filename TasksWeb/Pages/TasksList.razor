@@ -37,7 +37,7 @@
     </div>
 </div>
 <div class="comments">
-    @foreach (var comment in comments)
+    @foreach (var comment in comments!)
     {
         <div class="task">
             <div class="content">
@@ -60,9 +60,9 @@
     [Parameter]
     public MyTask oneTask { get; set; } = new MyTask();
 
-    private List<MyTask> myTasks = new List<MyTask>();
+    private List<MyTask>? myTasks = new List<MyTask>();
     private List<MyTask> showTasks = new List<MyTask>();
-    private List<Comment> comments = new List<Comment>();
+    private List<Comment>? comments = new List<Comment>();
     private MyTask selectedTask = new MyTask();
     private bool showFinished = true;
     private bool shouldRender;
@@ -79,8 +79,7 @@
         }
         catch (Exception ex)
         {
-            // show error
-            Console.WriteLine(ex.Message);
+            Console.WriteLine("Error Read Tasks! Exception: " + ex.Message);
         }
         shouldRender = true;
     }
@@ -93,7 +92,7 @@
     private async Task Comments4Task(int taskId)
     {
         comments = await ApiManager.GetComments4Taks(taskId);
-        comments = comments.OrderByDescending(t => t.id).ToList();
+        comments = comments!.OrderByDescending(t => t.id).ToList();
     }
 
     /// <summary>
@@ -117,13 +116,12 @@
     {
         try
         {
-            await ApiManager.UpdateTask(myTask);
+            await ApiManager.UpdateTask(myTask)!;
             FilterFinished();
         }
         catch (Exception ex)
         {
-            // show error
-            Console.WriteLine(ex.Message);
+            Console.WriteLine("Error Save Task: " + myTask.id + " Exception: " + ex.Message);
         }
     }
 
@@ -138,14 +136,13 @@
 
         try
         {
-            newTask = await ApiManager.CreateTask(newTask);
+            newTask = await ApiManager.CreateTask(newTask)!;
             myTasks.Add(newTask);
             FilterFinished();
         }
         catch (Exception ex)
         {
-            // show error
-            Console.WriteLine(ex.Message);
+            Console.WriteLine("Error Create Task: " + newTask.id + " Exception: " + ex.Message);
         }
     }
 
@@ -159,14 +156,13 @@
     {
         try
         {
-            await ApiManager.DeleteTask(myTask, comments);
-            myTasks.Remove(myTask);
+            await ApiManager.DeleteTask(myTask, comments!)!;
+            myTasks!.Remove(myTask);
             FilterFinished();
         }
         catch (Exception ex)
         {
-            // show error
-            Console.WriteLine(ex.Message);
+            Console.WriteLine("Error Delete Task: " + myTask.id + " Exception: " + ex.Message);
         }
     }
 
@@ -176,9 +172,9 @@
     private void FilterFinished()
     {
         if (showFinished)
-            showTasks = myTasks;
+            showTasks = myTasks!;
         else
-            showTasks = myTasks.Where(t => t.state != MyTask.MyTaskState.Finished && t.state != MyTask.MyTaskState.Deleted).ToList();
+            showTasks = myTasks!.Where(t => t.state != MyTask.MyTaskState.Finished && t.state != MyTask.MyTaskState.Deleted).ToList();
 
         showTasks = showTasks.OrderByDescending(t => t.id).ToList();
     }
@@ -205,14 +201,13 @@
         Console.WriteLine("Create new comment: " + newComment);
         try
         {
-            newComment = await ApiManager.CreateComment(newComment);
-            comments.Add(newComment);
+            newComment = await ApiManager.CreateComment(newComment)!;
+            comments!.Add(newComment);
             comments = comments.OrderByDescending(t => t.id).ToList();
         }
         catch (Exception ex)
         {
-            // show error
-            Console.WriteLine(ex.Message);
+            Console.WriteLine("Error Create Comment: " + newComment.id + " Exception: " + ex.Message);
         }
     }
 
@@ -226,12 +221,11 @@
         Console.WriteLine("Update comment: " + comment.content);
         try
         {
-            await ApiManager.UpdateComment(comment);
+            await ApiManager.UpdateComment(comment)!;
         }
         catch (Exception ex)
         {
-            // show error
-            Console.WriteLine(ex.Message);
+            Console.WriteLine("Error Save Comment: " + comment.id + " Exception: " + ex.Message);
         }
     }
 
@@ -245,13 +239,12 @@
         Console.WriteLine("Delete comment: " + comment.content);
         try
         {
-            await ApiManager.DeleteComment(comment);
-            comments.Remove(comment);
+            await ApiManager.DeleteComment(comment)!;
+            comments!.Remove(comment);
         }
         catch (Exception ex)
         {
-            // show error
-            Console.WriteLine(ex.Message);
+            Console.WriteLine("Error Delete Comment: " + comment.id + " Exception: " + ex.Message);
         }
     }
 }
