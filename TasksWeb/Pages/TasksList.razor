@@ -69,6 +69,10 @@
 
     protected override bool ShouldRender() => shouldRender;
 
+    /// <summary>
+    /// Get tasks and comments at start
+    /// </summary>
+    /// <returns></returns>
     protected override async Task OnInitializedAsync()
     {
         try
@@ -126,7 +130,7 @@
     }
 
     /// <summary>
-    /// Create new taks
+    /// Create new task
     /// </summary>
     /// <returns></returns>
     private async Task CreateTask()
@@ -137,7 +141,7 @@
         try
         {
             newTask = await ApiManager.CreateTask(newTask)!;
-            myTasks.Add(newTask);
+            myTasks!.Add(newTask);
             FilterFinished();
         }
         catch (Exception ex)
@@ -147,8 +151,8 @@
     }
 
     /// <summary>
-    /// Delete task on API
-    /// delete also all comments belongs to task
+    /// Delete task
+    /// Delete also all comments belongs to task
     /// </summary>
     /// <param name="myTask"></param>
     /// <returns></returns>
@@ -189,7 +193,7 @@
     }
 
     /// <summary>
-    /// Create new comment for selected taks 
+    /// Create new comment for selected task 
     /// </summary>
     /// <returns></returns>
     private async Task CreateComment()
@@ -197,7 +201,6 @@
         Comment newComment = new Comment();
         newComment.myTaskId = selectedTask.id;
         newComment.userName = loginState.loggedUser;
-        //newComment.create = DateTime.Now;
         Console.WriteLine("Create new comment: " + newComment);
         try
         {
