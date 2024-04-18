@@ -1,6 +1,6 @@
 # TasksApp
 
-Ukázková aplikace pro výuku C#, NeET Core, Rest API, WinForm a frameworku Blazor
+Ukázková aplikace pro výuku C#, NET Core, Rest API, WinForm a frameworku Blazor
 
 ## Vývojové prostředí
 
