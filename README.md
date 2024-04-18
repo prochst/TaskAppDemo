@@ -1,6 +1,6 @@
 # TasksApp
 
-Ukázková aplikace vytvořená na základě zadání společnosti [COMPUTER HELP, spol. s r. o.](https://www.computerhelp.cz/) pro otestování znalostí uchazečů o práci.
+Ukázková aplikace pro výuku C#, NeET Core, Rest API, WinForm a frameworku Blazor
 
 ## Vývojové prostředí
 
